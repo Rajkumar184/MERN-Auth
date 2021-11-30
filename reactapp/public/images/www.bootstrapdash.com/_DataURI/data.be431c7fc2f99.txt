@@ -1,0 +1,1 @@
+chrome-extension://gomekmidlodglbbmalcneegieacbdmki/locales/Locale-en-US.json

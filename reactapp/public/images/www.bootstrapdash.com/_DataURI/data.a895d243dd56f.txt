@@ -1,0 +1,1 @@
+chrome-extension://eofcbnmajmjmplflapaojjnihcjkigck/common/libs/eventemitter2.js

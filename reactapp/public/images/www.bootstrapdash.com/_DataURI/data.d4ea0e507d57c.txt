@@ -1,0 +1,1 @@
+chrome-extension://eofcbnmajmjmplflapaojjnihcjkigck/common/scripts/templates.js
