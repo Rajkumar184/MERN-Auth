@@ -5,6 +5,8 @@ const port = process.env.PORT || 8001;
 const dotenv = require("dotenv");
 
 require("./db/conn");
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./SignUp.css";
 import { NavLink, useHistory } from "react-router-dom";
-import axios from "axios";
 
 const SignUp = () => {
 	const history = useHistory();
@@ -55,12 +54,12 @@ const SignUp = () => {
 
 			console.log(data);
 
-			// if (data) {
-			// 	history.push("/login");
-			// 	alert("register Successfully!");
-			// } else {
-			// 	return alert("something went wrong server error");
-			// }
+			if (data) {
+				history.push("/login");
+				alert("register Successfully!");
+			} else {
+				return alert("something went wrong server error");
+			}
 		} catch (err) {
 			console.log("reg f err" + err);
 		}

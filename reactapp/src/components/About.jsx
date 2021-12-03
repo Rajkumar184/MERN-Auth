@@ -1,13 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./About.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 
 const About = () => {
+	const [userData, setUserData] = useState();
+	const history = useHistory();
+
+	const openAboutPage = async () => {
+		try {
+			const res = await axios.get("/about");
+
+			const data = await res.data;
+			console.log(data);
+			setUserData(data);
+
+			if (!data) {
+				alert("there is no data availble plzz login");
+			}
+		} catch (err) {
+			alert("Login to access profile page");
+			history.push("/login");
+		}
+	};
+
+	useEffect(() => {
+		openAboutPage();
+	}, []);
+
 	return (
 		<>
 			<section className="overall-about py-4 ">
 				<div class="container emp-profile shadow-lg p-4 mb-4 bg-white">
-					<form method="post">
+					<form method="GET">
 						<div class="row ">
 							<div class="col-md-4">
 								<div
@@ -23,8 +48,8 @@ const About = () => {
 							</div>
 							<div class="col-md-6 pt-2">
 								<div class="profile-head">
-									<h5>Rajkumar Mali</h5>
-									<h6>MERN Stack Developer</h6>
+									<h5>{userData?.userProfile.name}</h5>
+									<h6>{userData?.userProfile.work}</h6>
 									<p class="proile-rating">
 										RANKINGS : <span>8/10</span>
 									</p>
@@ -50,7 +75,7 @@ const About = () => {
 												to="#profile"
 												role="tab"
 												aria-controls="profile"
-												aria-selected="false"
+												aria-selected="true"
 											>
 												Timeline
 											</NavLink>
@@ -102,7 +127,7 @@ const About = () => {
 												<label>User Id</label>
 											</div>
 											<div class="col-md-6">
-												<p>rajkumar123</p>
+												<p>{userData?.userProfile.email}</p>
 											</div>
 										</div>
 										<div class="row">
@@ -110,7 +135,7 @@ const About = () => {
 												<label>Name</label>
 											</div>
 											<div class="col-md-6">
-												<p>Rajkumar Mali</p>
+												<p>{userData?.userProfile.name}</p>
 											</div>
 										</div>
 										<div class="row">
@@ -118,7 +143,7 @@ const About = () => {
 												<label>Email</label>
 											</div>
 											<div class="col-md-6">
-												<p>rajkumarmali@gmail.com</p>
+												<p>{userData?.userProfile.email}</p>
 											</div>
 										</div>
 										<div class="row">
@@ -126,7 +151,7 @@ const About = () => {
 												<label>Phone</label>
 											</div>
 											<div class="col-md-6">
-												<p>123 456 7890</p>
+												<p> {userData?.userProfile.phone}</p>
 											</div>
 										</div>
 										<div class="row">
@@ -134,7 +159,7 @@ const About = () => {
 												<label>Profession</label>
 											</div>
 											<div class="col-md-6">
-												<p>Web Developer and MERN</p>
+												<p>{userData?.userProfile.work}</p>
 											</div>
 										</div>
 									</div>

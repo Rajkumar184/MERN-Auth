@@ -1,8 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import "./Login.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 
 const Login = () => {
+	const history = useHistory();
+	const [userLogin, setUserLogin] = useState({
+		email: "",
+		password: "",
+	});
+
+	const handleInputs = (e) => {
+		const { name, value } = e.target;
+		setUserLogin({ ...userLogin, [name]: value });
+	};
+
+	const submitLoginForm = async (e) => {
+		e.preventDefault();
+
+		try {
+			const { email, password } = userLogin;
+			if (!email || !password) {
+				alert("please fill the data!");
+			}
+
+			const res = await axios.post("/login", userLogin);
+			const data = res.data;
+
+			if (data) {
+				history.push("/");
+				alert("login successful");
+			}
+		} catch (error) {
+			alert(error.response.data.message);
+		}
+	};
+
 	return (
 		<>
 			<section className="login-section py-2">
@@ -17,7 +50,11 @@ const Login = () => {
 						</div>
 						<div className="col-md-7 col-lg-5 col-xl-5">
 							<div className="signin-form">
-								<form action="/examples/actions" method="post">
+								<form
+									method="POST"
+									autoComplete="off"
+									onSubmit={submitLoginForm}
+								>
 									<h2>Login in</h2>
 									<p className="hint-text">
 										Sign in with your social media account
@@ -50,20 +87,24 @@ const Login = () => {
 									</div>
 									<div className="form-group">
 										<input
-											type="text"
+											type="email"
+											placeholder="email"
 											className="form-control input-lg"
-											name="username"
-											placeholder="Username"
-											required="required"
+											name="email"
+											value={userLogin.email}
+											onChange={handleInputs}
 										/>
 									</div>
 									<div className="form-group">
 										<input
 											type="password"
-											className="form-control input-lg"
+											placeholder="password (8 characters minimum)"
+											minLength="8"
+											maxLength="10"
 											name="password"
-											placeholder="Password"
-											required="required"
+											value={userLogin.password}
+											onChange={handleInputs}
+											className="form-control input-lg"
 										/>
 									</div>
 									<div className="form-group">

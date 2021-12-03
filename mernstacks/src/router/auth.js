@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Users = require("../models/userSchema");
 require("../db/conn");
+const Authenticate = require("../middleware/authenticate");
 
 router.get("/", (req, res) => {
 	res.send("hello from simple server :)");
@@ -19,15 +20,20 @@ router.post("/register", async (req, res) => {
 
 	try {
 		const userExist = await Users.findOne({ email: email });
+		const userPhone = await Users.findOne({ phone: phone });
 
 		if (userExist) {
 			return res.status(422).json({ error: " Email is already Exist " });
-		} else if (password != cpassword) {
+		} else if (password !== cpassword) {
 			return res.status(422).json({ error: " Password is not matching " });
+		} else if (!userPhone) {
+			return res
+				.status(422)
+				.json({ error: " Please provide another contact No " });
 		} else {
 			const user = new Users({ name, email, phone, work, password, cpassword });
 
-			const userRegister = await user.save();
+			await user.save();
 
 			res.status(201).json({ message: "User registered Succesfully" });
 		}
@@ -45,32 +51,42 @@ router.post("/login", async (req, res) => {
 			return res.status(400).json({ error: "Plz Filled the data" });
 		}
 
-		const userLogin = await Users.findOne({ email: email });
-
-		console.log(userLogin);
-
-		if (userLogin) {
-			const isMatch = await bcrypt.compare(password, userLogin.password);
-
-			const token = await userLogin.generateAuthToken();
-			console.log(`the token part ${token}`);
-
-			res.cookie("jwt", token, {
-				expires: new Date(Date.now() + 50000),
-				httpOnly: true,
-				// secure:true
-			});
-
-			if (!isMatch) {
-				res.status(400).json({ error: "Invalid Detailsp" });
-			} else {
-				res.status(200).json({ message: "user login Successfully" });
-			}
-		} else {
-			res.status(400).json({ error: "Invalid Detailse" });
+		//checking email
+		const checkUser = await Users.findOne({ email: email });
+		if (!checkUser) {
+			res.status(401).json({ message: "Invalid Credentials please register!" });
 		}
+
+		//checking password
+		const checkPassword = await bcrypt.compare(password, checkUser.password);
+		if (!checkPassword) {
+			res.status(401).json({ message: "Invalid Credentials!" });
+		}
+
+		const token = await checkUser.generateAuthToken();
+
+		res.status(201).cookie("jwt", token, {
+			expires: new Date(Date.now() + 1800000),
+			httpOnly: true,
+		});
+
+		res.status(201).send("User Login successFully!");
 	} catch (err) {
 		console.log(err);
+	}
+});
+
+// create the about page
+
+router.get("/about", Authenticate, async (req, res) => {
+	try {
+		const userProfile = await Users.findById(req.user.id);
+
+		userProfile.password = undefined;
+
+		res.status(201).send({ userProfile });
+	} catch (error) {
+		return next(new Error(error.message));
 	}
 });
 
