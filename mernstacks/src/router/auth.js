@@ -10,35 +10,44 @@ router.get("/", (req, res) => {
 	res.send("hello from simple server :)");
 });
 
-router.post("/register", async (req, res) => {
-	const { name, email, phone, work, password, cpassword } = req.body;
-	console.log(req.body);
-
-	if (!name || !phone || !work || !password || !cpassword) {
-		return res.status(422).json({ error: "plz filled the field properly" });
-	}
-
+router.post("/register", async (req, res, next) => {
 	try {
-		const userExist = await Users.findOne({ email: email });
-		const userPhone = await Users.findOne({ phone: phone });
+		const { name, email, phone, work, password, cpassword } = req.body;
 
-		if (userExist) {
-			return res.status(422).json({ error: " Email is already Exist " });
-		} else if (password !== cpassword) {
-			return res.status(422).json({ error: " Password is not matching " });
-		} else if (!userPhone) {
-			return res
-				.status(422)
-				.json({ error: " Please provide another contact No " });
-		} else {
-			const user = new Users({ name, email, phone, work, password, cpassword });
-
-			await user.save();
-
-			res.status(201).json({ message: "User registered Succesfully" });
+		if (!name || !email || !phone || !work || !password || !cpassword) {
+			return next(new Error("All fields are mandatory"));
 		}
-	} catch (err) {
-		console.log(err);
+
+		if (password !== cpassword) {
+			return next(new Error("Password and Confirm Password not matching"));
+		}
+
+		const userExists = await Users.findOne({ email: email });
+
+		if (userExists) {
+			return next(new Error("Already registered please Login"));
+		}
+
+		// const userPhone = await Users.findOne({ phone: phone });
+		// if (!userPhone) {
+		// 	return next(new Error(": Please provide another contact No "));
+		// }
+
+		await Users.create({
+			name,
+			email,
+			phone,
+			work,
+			password,
+			cpassword,
+		});
+
+		res.status(201).json({
+			success: true,
+			message: "Register successfully",
+		});
+	} catch (error) {
+		return next(new Error(error));
 	}
 });
 
@@ -64,10 +73,12 @@ router.post("/login", async (req, res) => {
 		}
 
 		const token = await checkUser.generateAuthToken();
+		console.log(`the token part ${token}`);
 
 		res.status(201).cookie("jwt", token, {
 			expires: new Date(Date.now() + 1800000),
 			httpOnly: true,
+			// secure:true
 		});
 
 		res.status(201).send("User Login successFully!");
@@ -78,13 +89,58 @@ router.post("/login", async (req, res) => {
 
 // create the about page
 
-router.get("/about", Authenticate, async (req, res) => {
+router.get("/about", Authenticate, async (req, res, next) => {
 	try {
 		const userProfile = await Users.findById(req.user.id);
 
 		userProfile.password = undefined;
+		userProfile.cpassword = undefined;
 
 		res.status(201).send({ userProfile });
+	} catch (error) {
+		return next(new Error(error.message));
+	}
+});
+
+// create the contact page
+
+router.get("/getdata", Authenticate, async (req, res, next) => {
+	try {
+		const userProfile = await Users.findById(req.user.id);
+
+		userProfile.password = undefined;
+		userProfile.cpassword = undefined;
+
+		res.status(201).send({ userProfile });
+	} catch (error) {
+		return next(new Error(error.message));
+	}
+});
+
+router.post("/contact", Authenticate, async (req, res, next) => {
+	try {
+		const { name, email, phone, message } = req.body;
+
+		if (!name || !email || !phone || !message) {
+			console.log("error in contact form");
+			return res.json({ error: "plz filled the contact form" });
+		}
+
+		const userContact = await Users.findOne({ _id: req.user });
+
+		if (userContact) {
+			const userMessage = await userContact.addMessage(
+				name,
+				email,
+				phone,
+				message
+			);
+			await userContact.save();
+			res.status(201).json({
+				success: true,
+				message: "User Contact Successfully",
+			});
+		}
 	} catch (error) {
 		return next(new Error(error.message));
 	}

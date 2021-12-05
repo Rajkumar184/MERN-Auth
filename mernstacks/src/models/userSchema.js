@@ -39,6 +39,41 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+	message: [
+		{
+			name: {
+				type: String,
+				required: true,
+				minlength: 3,
+			},
+
+			email: {
+				type: String,
+				required: true,
+				unique: [true, "Email is already present"],
+				validator(value) {
+					if (!validator.isEmail(value)) {
+						throw new Error("Invalid Email");
+					}
+				},
+			},
+
+			phone: {
+				type: Number,
+				min: 10,
+				required: true,
+				unique: true,
+			},
+			message: {
+				type: String,
+				required: true,
+			},
+		},
+	],
 	tokens: [
 		{
 			token: {
@@ -53,10 +88,10 @@ const userSchema = new mongoose.Schema({
 userSchema.pre("save", async function (next) {
 	if (this.isModified("password")) {
 		console.log(`the current password is ${this.password}`);
-		this.password = await bcrypt.hash(this.password, 10);
+		this.password = await bcrypt.hash(this.password, 12);
 		console.log(`the current hash password is ${this.password}`);
 
-		this.cpassword = await bcrypt.hash(this.password, 10);
+		this.cpassword = await bcrypt.hash(this.password, 12);
 	}
 	next();
 });
@@ -67,6 +102,17 @@ userSchema.methods.generateAuthToken = async function () {
 		return jwt.sign({ id: this._id.toString() }, process.env.SECRET_KEY);
 	} catch (error) {
 		console.log(`the error part ${error}`);
+	}
+};
+
+// storing messages
+userSchema.methods.addMessage = async function (name, email, phone, message) {
+	try {
+		this.message = this.message.concat({ name, email, phone, message });
+		await this.save();
+		return this.message;
+	} catch (error) {
+		console.log(error);
 	}
 };
 
