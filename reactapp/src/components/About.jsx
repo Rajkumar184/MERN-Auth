@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./About.css";
 import { NavLink, useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const About = () => {
 	const [userData, setUserData] = useState();
@@ -16,11 +17,17 @@ const About = () => {
 			setUserData(data);
 
 			if (!data) {
-				alert("there is no data availble plzz login");
+				return toast.error("there is no data availble plzz login", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			}
 		} catch (err) {
-			alert("Login to access profile page");
 			history.push("/login");
+			return toast.warning("Login to access profile page!", {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
+			});
 		}
 	};
 
@@ -39,7 +46,11 @@ const About = () => {
 									className="profile-img"
 									style={{ height: "12rem", width: "16rem" }}
 								>
-									<img className="rounded" src="images/RAJKUMAR.jpg" alt="" />
+									<img
+										className="rounded"
+										src="images/Personal_data.png"
+										alt="personal_img"
+									/>
 									<div className="file btn btn-lg btn-primary">
 										Change Photo
 										<input type="file" name="file" />
@@ -102,15 +113,15 @@ const About = () => {
 									<br />
 									<NavLink to="">Website Work</NavLink>
 									<p>SKILLS</p>
-									<NavLink to="">Web Designer</NavLink>
+									<NavLink to=""> Designer</NavLink>
 									<br />
-									<NavLink to="">Web Developer</NavLink>
+									<NavLink to=""> Developer</NavLink>
 									<br />
-									<NavLink to="">Mern Developer</NavLink>
+									<NavLink to="">softawre Developer</NavLink>
 									<br />
-									<NavLink to="">Nodes, Express js</NavLink>
+									<NavLink to="">frontend developer</NavLink>
 									<br />
-									<NavLink to="">Mongo Db</NavLink>
+									<NavLink to="">backend developer</NavLink>
 									<br />
 								</div>
 							</div>

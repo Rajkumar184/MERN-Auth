@@ -12,41 +12,44 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 const Users = require("./models/userSchema");
+app.use(require("./router/auth"));
 
 dotenv.config({ path: "./.env" });
-
-app.use(require("./router/auth"));
 
 const cors = require("cors");
 app.use(cors());
 
 app.use(Users);
 
-// app.use(loggingMiddleware);
+// //register route
+// app.use(require("./router/register"));
 
-// app.get("/", (req, res) => {
-// 	res.send("Home Page");
-// });
+// //login route
+// app.use(require("./router/login"));
 
-// app.get("/users", loggingMiddleware, (req, res) => {
-// 	// console.log(req.admin);
-// 	console.log("users page");
-// 	res.send("Users Page");
-// });
+//logout route
+// app.use(require("./router/logout"));
 
-// function loggingMiddleware(req, res, next) {
-// 	console.log(`Login ${new Date().toISOString()}: ${req.originalUrl}`);
-// 	next();
-// }
+//about route
+// app.use(require("./router/about"));
 
-// function authorizeUsersAccess(req, res, next) {
-// 	if (req.query.admin === "true") {
-// 		req.admin = true;
-// 		next();
-// 	} else {
-// 		res.send("ERROR: You must be an admin");
-// 	}
-// }
+// contact route
+// app.use(require("./router/contact"));
+
+//user data route
+// app.use(require("./router/getdata"));
+
+// //delete route
+// const deleteRoute = require("./routes/deleteRoute");
+// app.use("/", deleteRoute);
+
+// //forgot pass sending link
+// const forgotPassRoute = require("./routes/forgotPassRoute");
+// app.use("/", forgotPassRoute);
+
+// //change password
+// const changePassRoute = require("./routes/changePassRoute");
+// app.use("/", changePassRoute);
 
 app.listen(port, () => {
 	console.log(`listining to the port no. ${port}`);

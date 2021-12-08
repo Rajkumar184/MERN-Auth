@@ -119,31 +119,42 @@ router.get("/getdata", Authenticate, async (req, res, next) => {
 
 router.post("/contact", Authenticate, async (req, res, next) => {
 	try {
-		const { name, email, phone, message } = req.body;
+		// const newData = {
+		// 	name: req.body.name,
+		// 	email: req.body.email,
+		// 	phone: req.body.phone,
+		// };
 
-		if (!name || !email || !phone || !message) {
-			console.log("error in contact form");
-			return res.json({ error: "plz filled the contact form" });
-		}
+		// await Users.findByIdAndUpdate(req.user.id, newData);
 
-		const userContact = await Users.findOne({ _id: req.user });
+		const { message } = req.body;
 
-		if (userContact) {
-			const userMessage = await userContact.addMessage(
-				name,
-				email,
-				phone,
-				message
-			);
-			await userContact.save();
+		const addMsg = await Users.findByIdAndUpdate(req.user.id, {
+			$push: {
+				message: message,
+			},
+		});
+
+		if (addMsg) {
 			res.status(201).json({
 				success: true,
-				message: "User Contact Successfully",
+				message: "User Contact saved Successfully",
+			});
+		} else {
+			return res.status(401).json({
+				success: true,
+				message: "User not Contact saved Successfully",
 			});
 		}
 	} catch (error) {
-		return next(new Error(error.message));
+		console.log(error);
 	}
+});
+
+// logout page
+router.get("/logout", Authenticate, (req, res) => {
+	res.clearCookie("jwt", { path: "/" });
+	res.status(201).send("user logout!");
 });
 
 module.exports = router;

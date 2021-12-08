@@ -1,7 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import Cookies from "universal-cookie";
 
 const Navbar = () => {
+	const cookies = new Cookies();
+
 	return (
 		<>
 			<nav
@@ -40,16 +43,32 @@ const Navbar = () => {
 					</ul>
 
 					<ul className="nav navbar-nav ml-auto">
-						<li className="nav-item">
-							<NavLink className="nav-link text-dark" to="/signup">
-								<span className="fas fa-user "></span> Sign Up
-							</NavLink>
-						</li>
-						<li className="nav-item">
-							<NavLink className="nav-link text-dark" to="/login">
-								<span className="fas fa-sign-in-alt "></span> Login
-							</NavLink>
-						</li>
+						<div>
+							{cookies.get("isLogin") ? (
+								""
+							) : (
+								<li className="nav-item">
+									<NavLink className="nav-link text-dark" to="/signup">
+										<span className="fas fa-user "></span> Sign Up
+									</NavLink>
+								</li>
+							)}
+						</div>
+
+						{/* login logout toggle */}
+						{cookies.get("isLogin") ? (
+							<li className="nav-item">
+								<NavLink className="nav-link text-danger" to="/logout">
+									<span className="fas fa-sign-in-alt "></span> Logout
+								</NavLink>
+							</li>
+						) : (
+							<li className="nav-item">
+								<NavLink className="nav-link text-dark" to="/login">
+									<span className="fas fa-sign-in-alt "></span> Login
+								</NavLink>
+							</li>
+						)}
 					</ul>
 				</div>
 			</nav>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./SignUp.css";
+import { toast } from "react-toastify";
 import { NavLink, useHistory } from "react-router-dom";
 
 const SignUp = () => {
@@ -27,11 +28,17 @@ const SignUp = () => {
 		const { name, email, phone, work, password, cpassword } = user;
 
 		if (!name || !email || !phone || !work || !password || !cpassword) {
-			return alert("please fill the data!");
+			return toast.warning("All fields are mandatory!", {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
+			});
 		}
 
 		if (password !== cpassword) {
-			return alert("password and confirm password are not matching");
+			return toast.warning("Password and Confirm Password are not matching!", {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
+			});
 		}
 
 		try {
@@ -56,12 +63,21 @@ const SignUp = () => {
 
 			if (data) {
 				history.push("/login");
-				alert("register Successfully!");
+				return toast.success("Registration Successful!", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			} else {
-				return alert("something went wrong server error");
+				return toast.error("something went wrong server error", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			}
-		} catch (err) {
-			console.log("reg f err" + err);
+		} catch (error) {
+			return toast.error(error.response.data.message, {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
+			});
 		}
 	};
 
@@ -207,7 +223,7 @@ const SignUp = () => {
 								</div>
 								<div className="form-group">
 									<label className="form-check-label">
-										<input type="checkbox" required="required" /> I accept the{" "}
+										<input type="checkbox" required="required" /> I accept the
 										<a href="#*">Terms of Use</a> &amp;
 										<a href="#*">Privacy Policy</a>
 									</label>

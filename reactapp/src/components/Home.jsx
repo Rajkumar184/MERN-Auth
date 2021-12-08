@@ -1,7 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./Home.css";
 
 const Home = () => {
+	const [userName, setUserName] = useState();
+	const [show, setShow] = useState(false);
+
+	const userHomePage = async () => {
+		try {
+			const res = await axios.get("/getdata", {
+				method: "GET",
+			});
+
+			const data = await res.data;
+			console.log(data);
+			setUserName(data.userProfile.name);
+			setShow(true);
+
+			if (!data) {
+				const error = new Error(res.error);
+				throw error;
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	useEffect(() => {
+		userHomePage();
+	}, []);
 	return (
 		<>
 			<section class="vh-100 ">
@@ -16,10 +43,12 @@ const Home = () => {
 						</div>
 						<div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1 ">
 							<form>
-								{/* <!-- Email input --> */}
 								<form>
-									<h1 className="text-danger">Welcome</h1>
-									<h3 className="my-5">We Are MERN Developer</h3>
+									<h1 className="text-danger ">Welcome</h1>
+									<h1 className="mt-5">{userName}</h1>
+									<h3 className="mt-4">
+										{show ? "Happy,to see you back!" : "We Are MERN Developer"}
+									</h3>
 								</form>
 							</form>
 						</div>

@@ -6,8 +6,11 @@ import Home from "./components/Home.jsx";
 import Contact from "./components/Contact.jsx";
 import About from "./components/About.jsx";
 import Login from "./components/Login.jsx";
+import Logout from "./components/Logout.jsx";
 import SignUp from "./components/SignUp.jsx";
 import Footer from "./components/Footer.jsx";
+import SendEmail from "./components/SendEmail.jsx";
+import ChangePassword from "./components/ChangePassword.jsx";
 import ErrorPage from "./components/ErrorPage";
 
 const App = () => {
@@ -29,8 +32,21 @@ const App = () => {
 				<Route exact path="/login">
 					<Login />
 				</Route>
+
+				<Route exact path="/logout">
+					<Logout />
+				</Route>
+
 				<Route exact path="/signup">
 					<SignUp />
+				</Route>
+
+				<Route exact path="/sendotp">
+					<SendEmail />
+				</Route>
+
+				<Route exact path="/changepassword">
+					<ChangePassword />
 				</Route>
 				<Route>
 					<ErrorPage />

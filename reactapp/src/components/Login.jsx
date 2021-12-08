@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Cookies from "universal-cookie";
+import { toast } from "react-toastify";
 import "./Login.css";
 import { NavLink, useHistory } from "react-router-dom";
 
 const Login = () => {
+	const cookies = new Cookies();
 	const history = useHistory();
 	const [userLogin, setUserLogin] = useState({
 		email: "",
@@ -21,18 +24,32 @@ const Login = () => {
 		try {
 			const { email, password } = userLogin;
 			if (!email || !password) {
-				alert("please fill the data!");
+				return toast.error("All fields are mandatory!", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			}
 
 			const res = await axios.post("/login", userLogin);
 			const data = res.data;
 
 			if (data) {
+				let expirestimeCookie = new Date();
+				expirestimeCookie.setTime(expirestimeCookie.getTime() + 30 * 60 * 1000);
+
+				cookies.set("isLogin", "true", { expires: expirestimeCookie });
+
 				history.push("/");
-				alert("login successful");
+				return toast.success("Login Successful!", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			}
 		} catch (error) {
-			alert(error.response.data.message);
+			return toast.error(error.response.data.message, {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
+			});
 		}
 	};
 
@@ -116,7 +133,7 @@ const Login = () => {
 										</button>
 									</div>
 									<div className="text-center small">
-										<NavLink to="/">Forgot Your password?</NavLink>
+										<NavLink to="/sendotp">Forgot Your password?</NavLink>
 									</div>
 								</form>
 								<div className="text-center small">

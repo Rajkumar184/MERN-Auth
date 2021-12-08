@@ -1,35 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Contact.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Contact = () => {
-	const [userData, setUserData] = useState({
-		name: "",
-		email: "",
-		phone: "",
+	const [userData, setUserData] = useState("");
+	const history = useHistory();
+
+	const [msg, setMsg] = useState({
 		message: "",
 	});
 
 	const userContactPage = async () => {
 		try {
-			const res = await axios.get("/getdata", {
-				method: "GET",
-			});
+			const res = await axios.get("/getdata");
 
-			const data = await res.data;
+			const data = await res.data.userProfile;
 			console.log(data);
-			setUserData({
-				...userData,
-				name: data.userProfile.name,
-				email: data.userProfile.email,
-				phone: data.userProfile.phone,
-			});
-
-			if (!data) {
-				const error = new Error(res.error);
-				throw error;
-			}
+			setUserData(data);
 		} catch (err) {
 			console.log(err);
 		}
@@ -41,11 +30,10 @@ const Contact = () => {
 
 	// storing data in states
 	const handleInputs = (e) => {
-		const name = e.target.name;
-		const value = e.target.value;
+		const { name, value } = e.target;
 
-		setUserData({
-			...userData,
+		setMsg({
+			...msg,
 			[name]: value,
 		});
 	};
@@ -54,32 +42,37 @@ const Contact = () => {
 	const submitConatctForm = async (e) => {
 		e.preventDefault();
 
-		try {
-			const { name, email, phone, message } = userData;
+		const { message } = msg;
 
-			const res = await axios.post("/contact", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					name,
-					email,
-					phone,
-					message,
-				}),
+		if (!message) {
+			return toast.warning("All fields are mandatory!", {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
 			});
+		}
+		try {
+			const res = await axios.post("/contact", msg);
 
-			const data = await res.json();
+			const data = await res.data;
 
 			if (!data) {
-				console.log("message not send");
+				return toast.warning("message not send", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			} else {
-				alert("Message Send");
-				setUserData({ ...userData, message: "" });
+				history.push("/");
+
+				return toast.success("Message Send !", {
+					position: toast.POSITION.TOP_CENTER,
+					autoClose: 3000,
+				});
 			}
-		} catch (err) {
-			console.log(err);
+		} catch (error) {
+			return toast.error(error.response.data.message, {
+				position: toast.POSITION.TOP_CENTER,
+				autoClose: 3000,
+			});
 		}
 	};
 
@@ -104,7 +97,6 @@ const Contact = () => {
 												Your message was sent, thank you!
 											</div>
 											<form
-												method="POST"
 												onSubmit={submitConatctForm}
 												id="contactForm"
 												name="contactForm"
@@ -124,7 +116,7 @@ const Contact = () => {
 																id="name"
 																placeholder="Name"
 																onChange={handleInputs}
-																value={userData?.userProfile.name}
+																value={userData.name}
 															/>
 														</div>
 													</div>
@@ -140,14 +132,14 @@ const Contact = () => {
 																id="email"
 																placeholder="Email"
 																onChange={handleInputs}
-																value={userData?.userProfile.email}
+																value={userData.email}
 															/>
 														</div>
 													</div>
 													<div className="col-md-12">
 														<div className="form-group">
 															<label className="label" for="subject">
-																Phone
+																Phone Number
 															</label>
 															<input
 																type="tel"
@@ -157,7 +149,7 @@ const Contact = () => {
 																name="phone"
 																placeholder="Phone"
 																onChange={handleInputs}
-																value={userData?.userProfile.phone}
+																value={userData.phone}
 															/>
 														</div>
 													</div>
@@ -174,7 +166,6 @@ const Contact = () => {
 																rows="4"
 																placeholder="Message"
 																onChange={handleInputs}
-																value={userData?.userProfile.message}
 															></textarea>
 														</div>
 													</div>
